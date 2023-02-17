@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectAllPosts } from '../../features/post/postsSlice';
+import { selectAllPosts, logOut } from '../../features/post/postsSlice';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,8 +14,8 @@ export const EditPost = ()=> {
     const posts = useSelector(selectAllPosts);
     const dispatch = useDispatch();
 
-    const [title, setTitle] = useState('');
-    const [body, setBody] = useState('');
+    const [title, setTitle] = useState(posts[postID].title);
+    const [body, setBody] = useState(posts[postID].body);
     const [buttonType, setButtonType] = useState(posts[postID].isPublished ? 'pill-button' : 'publish-button');
     const [isPublished, setIsPublished] = useState(posts[postID].isPublished);
 
@@ -36,16 +36,18 @@ export const EditPost = ()=> {
             }),
         })
         .then((response) => response.json())
-        .then((data) => {
-            console.log('Success:', data);
-            
+        .then((json) => {
+            if(json.isLoggedIn) {
+                console.log('Success:', json);
+            } else {
+                dispatch(logOut());
+            } 
             setTitle("");
             setBody("");
             setButtonType("publish-button");
             setIsPublished(false);
             navigate("/");
-        })
-        
+        }) 
     }
 
     const setPublished = () => {
@@ -58,13 +60,13 @@ export const EditPost = ()=> {
         <Col xs={10} className="col-10 link-column">
             <Row>
                 <Form.Floating className="my-3">
-                    <Form.Control type="text" placeholder="post title" aria-label="TITLE" id="postTitle" name="postTitle" defaultValue={posts[postID].title} onChange={(event) => setTitle(event.target.value)}></Form.Control>
+                    <Form.Control type="text" placeholder="post title" aria-label="TITLE" id="postTitle" name="postTitle" defaultValue={title} onChange={(event) => setTitle(event.target.value)}></Form.Control>
                     <label for="postTitle" className="mx-3">Title</label>
                 </Form.Floating >
             </Row>
             <Row>
                 <Form.Floating className="my-3">
-                    <Form.Control as="textarea" style={{height: "500px"}} placeholder="post content" id="postContent" name="postContent" defaultValue={posts[postID].body} onChange={(event) => setBody(event.target.value)}></Form.Control> 
+                    <Form.Control as="textarea" style={{height: "500px"}} placeholder="post content" id="postContent" name="postContent" defaultValue={body} onChange={(event) => setBody(event.target.value)}></Form.Control> 
                 </Form.Floating>
             </Row>
         </Col>

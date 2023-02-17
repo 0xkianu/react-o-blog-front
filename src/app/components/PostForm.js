@@ -1,6 +1,6 @@
 import { React, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addPost } from '../../features/post/postsSlice';
+import { addPost, logOut } from '../../features/post/postsSlice';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -32,9 +32,12 @@ export const PostForm = ()=> {
             }),
         })
         .then((response) => response.json())
-        .then((data) => {
-            console.log('Success:', data);
-            dispatch(addPost(data));
+        .then((json) => {
+            if(json.isLoggedIn) {
+                dispatch(addPost(json.post));
+            } else {
+                dispatch(logOut());
+            } 
             setTitle("");
             setBody("");
             setButtonType("publish-button");

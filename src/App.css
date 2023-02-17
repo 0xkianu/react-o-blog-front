@@ -154,3 +154,12 @@ a:hover {
 .icon {
   pointer-events: none;
 }
+
+.hidden-message {
+  visibility: hidden;
+}
+
+.visible-message {
+  visibility:visible;
+  color: red;
+}

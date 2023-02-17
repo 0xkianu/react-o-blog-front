@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     selectAllPosts,
     setPosts,
-    deletePostById
+    deletePostById,
+    logOut,
 } from '../../features/post/postsSlice'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -15,7 +16,13 @@ export const PostList = ()=> {
     const fetchPostsToState = async () => {
         await fetch("/blog/home")
             .then(response => response.json())
-            .then(json => dispatch(setPosts(json)));
+            .then((json) => {
+                if(json.isLoggedIn) {
+                    dispatch(setPosts(json.posts));
+                } else {
+                    dispatch(logOut());
+                } 
+            });
     }
 
     const removePostById = async (postID) => {
@@ -27,8 +34,12 @@ export const PostList = ()=> {
             body: JSON.stringify({ postID }),
         })
         .then((response) => response.json())
-        .then((data) => {
-            dispatch(deletePostById(postID))
+        .then((json) => {
+            if(json.isLoggedIn) {
+                dispatch(deletePostById(postID));
+            } else {
+                dispatch(logOut());
+            }
         })
     }
 
