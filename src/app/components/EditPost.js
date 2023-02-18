@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAllPosts, logOut } from '../../features/post/postsSlice';
@@ -8,14 +8,15 @@ import Col from 'react-bootstrap/Col';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Pen } from 'react-bootstrap-icons';
 import { Save } from 'react-bootstrap-icons';
+import { Editor } from '@tinymce/tinymce-react';
 
 export const EditPost = ()=> {
     let { postID } = useParams();
     const posts = useSelector(selectAllPosts);
     const dispatch = useDispatch();
+    const editorRef = useRef(null);
 
     const [title, setTitle] = useState(posts[postID].title);
-    const [body, setBody] = useState(posts[postID].body);
     const [buttonType, setButtonType] = useState(posts[postID].isPublished ? 'pill-button' : 'publish-button');
     const [isPublished, setIsPublished] = useState(posts[postID].isPublished);
 
@@ -23,6 +24,13 @@ export const EditPost = ()=> {
 
     const saveForm = async (event) => {
         event.preventDefault();
+
+        let bodyString = '';
+
+        if (editorRef.current) {
+            bodyString = editorRef.current.getContent();
+        }
+
         await fetch('/blog/editpost', {
             method: 'POST',
             headers: {
@@ -31,7 +39,7 @@ export const EditPost = ()=> {
             body: JSON.stringify({
                 postID: posts[postID].id,
                 title: title,
-                content: body,
+                content: bodyString,
                 isPublished: isPublished,
             }),
         })
@@ -43,7 +51,6 @@ export const EditPost = ()=> {
                 dispatch(logOut());
             } 
             setTitle("");
-            setBody("");
             setButtonType("publish-button");
             setIsPublished(false);
             navigate("/");
@@ -65,9 +72,25 @@ export const EditPost = ()=> {
                 </Form.Floating >
             </Row>
             <Row>
-                <Form.Floating className="my-3">
-                    <Form.Control as="textarea" style={{height: "500px"}} placeholder="post content" id="postContent" name="postContent" defaultValue={body} onChange={(event) => setBody(event.target.value)}></Form.Control> 
-                </Form.Floating>
+                <Editor
+                    apiKey='6w8klk4zkiuj20zwr9ky9ouc296j0k0vtl01zb1ju713ddm6'
+                    onInit={(evt, editor) => editorRef.current = editor}
+                    initialValue={posts[postID].body}
+                    init={{
+                        height: 500,
+                        menubar: false,
+                        plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                        ],
+                        toolbar: 'undo redo | blocks | ' +
+                        'bold italic forecolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'removeformat | help',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                    }}
+                />
             </Row>
         </Col>
         <Col xs={2}>
