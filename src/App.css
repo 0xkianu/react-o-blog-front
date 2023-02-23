@@ -163,3 +163,8 @@ a:hover {
   visibility:visible;
   color: red;
 }
+
+.blog-link {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+}

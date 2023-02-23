@@ -7,6 +7,8 @@ import { EditPost } from './app/components/EditPost';
 import { SingleBlogPost } from './app/components/SingleBlogPost';
 import { Login } from './app/components/Login';
 import { CreateAccount } from './app/components/CreateAccount';
+import { UserBlog } from './app/components/UserBlog';
+import { AllBlogs } from './app/components/AllBlogs';
 import { Protected } from './app/components/Protected';
 import { selectIsLoggedIn, selectUserAccount, logOut } from './features/post/postsSlice';
 import { useSelector, useDispatch } from 'react-redux';
@@ -62,6 +64,9 @@ function App() {
             <Row className="m-3">
               <NavLink to="/blog"><button className="pill-button view-blog-btn"><BoxArrowInUpRight className="icon"/> VIEW BLOG</button></NavLink>
             </Row>
+            <Row className="m-3">
+              <NavLink to="/blog/users"><button className="pill-button view-blog-btn"><BoxArrowInUpRight className="icon"/> ALL BLOGS</button></NavLink>
+            </Row>
           </Col>
           <Col xs={8} md={9} xxl={10}>
           <Routes>
@@ -88,6 +93,16 @@ function App() {
             <Route path="/blog-post/:postID" element={
               <Protected isLoggedIn={isLoggedIn}>
                 <SingleBlogPost/>
+              </Protected>
+            } />
+            <Route path="/blog/users" element={
+              <Protected isLoggedIn={isLoggedIn}>
+                <AllBlogs/>
+              </Protected>
+            } />
+            <Route path="/blog/users/:userName" element={
+              <Protected isLoggedIn={isLoggedIn}>
+                <UserBlog/>
               </Protected>
             } />
             <Route path="/login" element={<Login />} />
